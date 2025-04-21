@@ -53,7 +53,7 @@ const CreateRoomPage = () => {
   const onCreate = async (values: Partial<LocalUserChoices>) => {
     console.log("Joining with: ", values);
     setIsLoading(true);
-    const { data } = await axios.post(`/api/createAndJoinRoom`, {
+    const { data } = await axios.post(`/api/createRoom`, {
       wsUrl,
       name: values?.username || "",
       roomName,

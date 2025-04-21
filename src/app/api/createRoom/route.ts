@@ -1,6 +1,5 @@
 import { getClientIP } from '@/lib/getClientIp';
 import { createTokenForAgent } from '@/lib/agent';
-import { languageOptions } from '@/lib/languageOptions';
 
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -28,7 +27,7 @@ export async function POST(req: NextRequest) {
 
     const identity = formattedUserId || generateUUID();
     const slug = generateUUID();
-    const { name, roomName, language } = parsedBody;
+    const { name, roomName, wsUrl, language } = parsedBody;
 
     const token = new AccessToken(process.env.API_KEY, process.env.API_SECRET, {
       identity: identity,
@@ -50,18 +49,21 @@ export async function POST(req: NextRequest) {
       ? `https://${process.env.NEXT_PUBLIC_POINTS_BACKEND_URL}/api/webhook`
       : undefined;
 
-    const clientIp = getClientIP(req) || undefined;
-    const url = await token.getWsUrl(clientIp);
+    let url = wsUrl;
 
-    await createTokenForAgent(
-      slug,
-      url,
-      languageOptions.find((opt) => {
-        return opt.name === language;
-      })?.code || "en",
-      identity,
-      "landing"
-    );
+    if (!url) {
+      const clientIp = getClientIP(req) || undefined;
+      url = await token.getWsUrl(clientIp);
+    }
+
+    if (!url) {
+      return NextResponse.json(
+        { error: "Invalid request or server error" },
+        { status: 400 }
+      );
+    }
+
+    await createTokenForAgent(slug, url, language || 'en', identity, "dmeet");
 
     return NextResponse.json({
       url,

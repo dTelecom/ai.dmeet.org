@@ -5,6 +5,7 @@ import { getUserIdFromHeaders } from "@/lib/dtel-auth/server";
 import { formatUserId } from "@/lib/dtel-auth/helpers";
 import { getClientIP } from '@/lib/getClientIp';
 import { createTokenForAgent } from '@/lib/agent';
+import { languageOptions } from '@/lib/languageOptions';
 
 const { AccessToken } = require("@dtelecom/server-sdk-js");
 
@@ -48,7 +49,15 @@ export async function POST(req: NextRequest) {
     const clientIp = getClientIP(req) || undefined;
     const url = await token.getWsUrl(clientIp);
 
-    await createTokenForAgent(slug, url, language || 'en', identity, "dmeet");
+    await createTokenForAgent(
+      slug,
+      url,
+      languageOptions.find((opt) => {
+        return opt.name === language;
+      })?.code || "en",
+      identity,
+      "landing"
+    );
 
     return NextResponse.json({
       url,
