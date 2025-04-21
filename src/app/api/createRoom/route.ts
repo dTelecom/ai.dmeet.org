@@ -1,5 +1,5 @@
 import { getClientIP } from '@/lib/getClientIp';
-import { createTokenForAgent } from '@/app/api/createAndJoinRoom/route';
+import { createTokenForAgent } from '@/lib/agent';
 import { languageOptions } from '@/lib/languageOptions';
 
 import { NextRequest, NextResponse } from "next/server";
@@ -28,8 +28,7 @@ export async function POST(req: NextRequest) {
 
     const identity = formattedUserId || generateUUID();
     const slug = generateUUID();
-    const { name, roomName, wsUrl, language } = parsedBody;
-
+    const { name, roomName, language } = parsedBody;
 
     const token = new AccessToken(process.env.API_KEY, process.env.API_SECRET, {
       identity: identity,

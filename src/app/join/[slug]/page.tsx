@@ -9,7 +9,6 @@ import { Footer } from "@/components/ui/Footer/Footer";
 import axios from "axios";
 import { isMobileBrowser } from "@dtelecom/components-core";
 import styles from "./Join.module.scss";
-import { languageOptions } from "@/lib/languageOptions";
 import { IGetRoomResponse } from "@/app/api/getRoom/route";
 import { ParticipantsBadge } from "@/components/ui/ParticipantsBadge/ParticipantsBadge";
 import { getCookie, setCookie } from '@/app/actions';
@@ -28,8 +27,8 @@ const JoinRoomPage = () => {
     Partial<LocalUserChoices>
   >({
     username: "",
-    videoEnabled: false,
-    audioEnabled: false
+    videoEnabled: true,
+    audioEnabled: process.env.NODE_ENV !== "development",
   });
 
   const [roomName] = useState<string>(name);
