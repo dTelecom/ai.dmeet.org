@@ -21,6 +21,10 @@ main {
     font-family: Inter, serif;
 }
 
+body {
+    font-family: var(--font-inter), serif;
+}
+
 #__next> [data-rk]{
     height: 100%;
 }
