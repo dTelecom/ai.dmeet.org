@@ -125,6 +125,7 @@ const RoomWrapper: NextPage = () => {
           video={preJoinChoices?.videoEnabled}
           audio={preJoinChoices?.audioEnabled}
           onDisconnected={onDisconnected}
+          activityModalEnabled
         >
           <div
             id="test-server-url"

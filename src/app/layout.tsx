@@ -9,15 +9,16 @@ import { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 
 const inter = Inter({ subsets: ['latin'] });
-
+const title = "dMeet | AI Voice Agent";
+const description = "Free, open-source web app for live audio conversations with an AI Voice Agent. Use the app, invite friends, and earn points. Powered by dTelecom.";
 export const metadata: Metadata = {
   metadataBase: new URL("https://ai.dmeet.org"),
-  title: 'dMeet | Web3 Meeting App',
-  description: 'dMeet is a free, open-source web app for audio/video conferences with a built-in Al translator. Create meetings, Invite friends, & Earn points. Powered by dTelecom.',
+  title: title,
+  description: description,
   openGraph: {
-    title: 'dMeet | Web3 Meeting App',
-    description: 'dMeet is a free, open-source web app for audio/video conferences with a built-in Al translator. Create meetings, Invite friends, & Earn points. Powered by dTelecom.',
-    siteName: 'dMeet | Web3 Meeting App',
+    title: title,
+    description: description,
+    siteName: title,
     images: ["/og.png"],
   },
   viewport: {
