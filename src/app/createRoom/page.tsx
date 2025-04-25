@@ -15,7 +15,7 @@ import { getCookie, setCookie } from '@/app/actions';
 
 const CreateRoomPage = () => {
   const router = useRouter();
-  const params = useSearchParams()
+  const params = useSearchParams();
 
   const [roomName] = useState<string>(params.get("roomName") || "");
   const [preJoinChoices, setPreJoinChoices] = useState<
@@ -35,7 +35,7 @@ const CreateRoomPage = () => {
         ...prev,
         username: cookie || ''
       }));
-      setIsLoading(false)
+      setIsLoading(false);
     });
 
     async function fetchWsUrl() {
@@ -51,21 +51,26 @@ const CreateRoomPage = () => {
   }, [router]);
 
   const onCreate = async (values: Partial<LocalUserChoices>) => {
-    console.log("Joining with: ", values);
-    setIsLoading(true);
-    const { data } = await axios.post(`/api/createRoom`, {
-      wsUrl,
-      name: values?.username || "",
-      roomName,
-      language: values?.language || "en"
-    });
-    await setCookie('username', values?.username || '', window.location.origin);
+    try {
+      console.log("Joining with: ", values);
+      setIsLoading(true);
+      const { data } = await axios.post(`/api/createRoom`, {
+        wsUrl,
+        name: values?.username || "",
+        roomName,
+        language: values?.language || "en"
+      });
+      await setCookie('username', values?.username || '', window.location.origin);
 
-    router.push(
-      `/room/${data.slug}?token=${data.token}&wsUrl=${data.url}&preJoinChoices=${encodeURIComponent(
-        JSON.stringify(values)
-      )}&roomName=${roomName}&isAdmin=${data.isAdmin}`
-    );
+      router.push(
+        `/room/${data.slug}?token=${data.token}&wsUrl=${data.url}&preJoinChoices=${encodeURIComponent(
+          JSON.stringify(values)
+        )}&roomName=${roomName}&isAdmin=${data.isAdmin}`
+      );
+    } catch (e) {
+      console.error(e);
+      setIsLoading(false);
+    }
   };
 
   if (roomName === undefined || isLoading) {
