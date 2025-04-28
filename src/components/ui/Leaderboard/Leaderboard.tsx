@@ -29,10 +29,10 @@ const description = {
       {
         badge: "Host",
         text: `${BASE_REWARDS_PER_MINUTE * ADMIN_POINTS_MULTIPLIER} points/minute`,
-        text2: "for using the AI Voice Agent in a meeting\n(with 1+ participant required)"
+        text2: "for using the AI Voice Agent in a meeting (with 1+ participant required)"
       },
       {
-        badge: "Viewer",
+        badge: "Participant",
         text: `${BASE_REWARDS_PER_MINUTE} points/minute`,
         text2: "for attending\na meeting"
       },
