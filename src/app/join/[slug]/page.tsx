@@ -15,6 +15,7 @@ import { getCookie, setCookie } from '@/app/actions';
 import { Button } from "@/components/ui";
 import { clsx } from "clsx";
 import { ChainIcon, TickIcon } from "@/assets";
+import { defaultPreJoinChoices } from '@/lib/constants';
 
 const JoinRoomPage = () => {
   const router = useRouter();
@@ -25,11 +26,7 @@ const JoinRoomPage = () => {
 
   const [preJoinChoices, setPreJoinChoices] = useState<
     Partial<LocalUserChoices>
-  >({
-    username: "",
-    videoEnabled: true,
-    audioEnabled: process.env.NODE_ENV !== "development",
-  });
+  >();
 
   const [roomName] = useState<string>(name);
   const [wsUrl, setWsUrl] = useState<string>();
@@ -37,11 +34,13 @@ const JoinRoomPage = () => {
   const [participantsCount, setParticipantsCount] = useState<number>();
 
   useEffect(() => {
-    getCookie('username').then((cookie) => {
-      setPreJoinChoices((prev) => ({
-        ...prev,
-        username: cookie || ''
+    getCookie("username").then((cookie) => {
+      setPreJoinChoices(() => ({
+        ...defaultPreJoinChoices,
+        username: cookie || ""
       }));
+    }).catch(() => {
+      setPreJoinChoices(() => (defaultPreJoinChoices));
     });
 
     async function fetchRoom() {
@@ -90,7 +89,7 @@ const JoinRoomPage = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  if (roomName === undefined) {
+  if (roomName === undefined || !preJoinChoices) {
     return null;
   }
 
