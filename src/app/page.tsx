@@ -12,6 +12,7 @@ import { Leaderboard } from "@/components/ui/Leaderboard/Leaderboard";
 import { LoginButton } from "@/lib/dtel-auth/components";
 import { IsAuthorizedWrapper } from "@/lib/dtel-auth/components/IsAuthorizedWrapper";
 import { getCookie, setCookie } from "@/app/actions";
+import { Loader } from '@dtelecom/components-react';
 
 export const dynamic = "force-dynamic";
 
@@ -34,13 +35,12 @@ export default function Home() {
     try {
       setIsLoading(true);
 
-      setCookie("roomName", roomName, window.location.origin);
+      await setCookie("roomName", roomName, window.location.origin);
       push(`/createRoom?roomName=${encodeURIComponent(roomName)}`);
     } catch (e) {
       console.error(e);
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   return (
@@ -88,7 +88,7 @@ export default function Home() {
             className={styles.button}
             disabled={!roomName || isLoading}
           >
-            Talk to AI Voice Agent
+            {isLoading ? <Loader /> : "Talk to AI Voice Agent"}
           </Button>
         </form>
       </div>
