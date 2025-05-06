@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import type { LocalUserChoices } from "@dtelecom/components-react";
 import {
@@ -18,14 +18,24 @@ import { DebugMode } from "@/lib/Debug";
 import { Footer } from "@/components/ui/Footer/Footer";
 import axios from "axios";
 import { RoomNavBar } from "@/components/ui/RoomNavBar/RoomNavBar";
-import { GridLayoutDefinition, isMobileBrowser } from "@dtelecom/components-core";
+import type { GridLayoutDefinition } from "@dtelecom/components-core";
+import { isMobileBrowser } from "@dtelecom/components-core";
+import { TranslationManager } from '@/lib/TranslationManager';
 import { debounce } from "ts-debounce";
 import { languageOptions } from "@/lib/languageOptions";
-import { TranslationManager } from '@/lib/TranslationManager';
+
+type RoomState = {
+  slug: string;
+  token: string;
+  wsUrl: string;
+  roomName: string;
+  isAdmin: boolean;
+  hq: boolean;
+  preJoinChoices: LocalUserChoices | null;
+}
 
 const useRoomParams = () => {
   const params = useSearchParams();
-  const router = useRouter();
   const p = useParams();
   const slug = p.slug as string || "";
 
@@ -40,7 +50,7 @@ const useRoomParams = () => {
   }, [params]);
 
   // store everything in state
-  const [roomState,] = React.useState({
+  const [roomState] = React.useState<RoomState>({
     slug,
     token,
     wsUrl,
@@ -49,12 +59,6 @@ const useRoomParams = () => {
     hq,
     preJoinChoices
   });
-
-  useEffect(() => {
-    if (!roomState.wsUrl) {
-      void router.push(`/join/${slug}`);
-    }
-  }, [router, slug, roomState.wsUrl]);
 
   return { ...roomState };
 };
@@ -88,12 +92,18 @@ const useRoomOptions = (preJoinChoices: LocalUserChoices | null, hq: boolean): R
 const RoomWrapper: NextPage = () => {
   const router = useRouter();
   const { slug, token, wsUrl, roomName, isAdmin, hq, preJoinChoices } = useRoomParams();
-
   const roomOptions = useRoomOptions(preJoinChoices, hq);
+  const startTime = React.useRef(Date.now());
 
   useEffect(() => {
-    window.history.replaceState(null, '', window.location.pathname);
-  }, [router, slug]);
+    window.history.replaceState(null, "", window.location.pathname);
+  }, [router, slug, token]);
+
+  useEffect(() => {
+    if (!wsUrl) {
+      void router.replace(`/join/${slug}`);
+    }
+  }, [router, slug, wsUrl]);
 
   const onDisconnected = async () => {
     if (isAdmin) {
@@ -112,12 +122,17 @@ const RoomWrapper: NextPage = () => {
         // Optionally handle the error, e.g., show a notification
       }
     }
-    void router.push("/");
+    if (process.env.NEXT_PUBLIC_POINTS_BACKEND_URL) {
+      const time = Math.floor((Date.now() - startTime.current) / 1000);
+      void router.push("/summary?roomName=" + roomName + "&timeSec=" + time + "&isAdmin=" + isAdmin + "&slug=" + slug);
+    } else {
+      void router.push("/");
+    }
   };
 
   return (
     <>
-      {wsUrl && (
+      {wsUrl ? (
         <LiveKitRoom
           token={token}
           serverUrl={wsUrl}
@@ -144,7 +159,7 @@ const RoomWrapper: NextPage = () => {
             token={token}
           />
         </LiveKitRoom>
-      )}
+      ) : null}
 
       <Footer />
     </>
@@ -224,11 +239,11 @@ const WrappedLiveKitRoom = ({
   return (
     <>
       <RoomNavBar
+        token={token}
         roomName={roomName}
         slug={slug}
         iconFull={!isMobile}
         isAdmin={isAdmin}
-        token={token}
       />
 
       <VideoConference
@@ -236,7 +251,7 @@ const WrappedLiveKitRoom = ({
         onKick={isAdmin ? onKick : undefined}
         onMute={isAdmin ? onMute : undefined}
         isAdmin={isAdmin}
-        localIdentity={localParticipant?.identity}
+        localIdentity={localParticipant.identity}
         gridLayouts={GRID_LAYOUTS}
         chatContext={chatContext}
         languageOptions={languageOptions}
@@ -316,6 +331,5 @@ const GRID_LAYOUTS: GridLayoutDefinition[] = [
     minHeight: 0
   }
 ];
-
 
 export default RoomWrapper;
